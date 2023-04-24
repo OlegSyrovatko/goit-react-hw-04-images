@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { React, useState } from 'react';
 import Searchbar from 'components/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Modal from 'components/Modal';
@@ -6,47 +6,42 @@ import { Container } from './App.styled';
 import { Loading } from 'notiflix/build/notiflix-loading-aio';
 import { Report } from 'notiflix/build/notiflix-report-aio';
 
-export class App extends Component {
-  state = {
-    pictureQuery: '',
-    showModal: false,
-    selectedImage: null,
+export const App = () => {
+  const [pictureQuery, setPictureQuery] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const search = pictureQuery => {
+    setPictureQuery(pictureQuery);
   };
 
-  search = pictureQuery => {
-    this.setState({ pictureQuery });
-  };
-
-  handleImageClick = async (id, largeImageURL, tags) => {
+  const handleImageClick = async (id, largeImageURL, tags) => {
     Loading.circle('Loading...');
     try {
-      this.setState({
-        showModal: true,
-        selectedImage: { id, largeImageURL, tags },
-      });
+      setShowModal(false);
+      setSelectedImage({ id, largeImageURL, tags });
     } catch (error) {
       Report.info(`${error}`);
     } finally {
       Loading.remove();
     }
   };
-  handleClose = () => {
-    this.setState({ showModal: false, selectedImage: null });
+
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedImage(null);
   };
 
-  render() {
-    const { showModal, selectedImage, pictureQuery } = this.state;
-    return (
-      <Container>
-        <Searchbar onSubmit={this.search} />
-        <ImageGallery
-          pictureQuery={pictureQuery}
-          onImageClick={this.handleImageClick}
-        />
-        {showModal && selectedImage && (
-          <Modal image={selectedImage} onClose={this.handleClose} />
-        )}
-      </Container>
-    );
-  }
-}
+  return (
+    <Container>
+      <Searchbar onSubmit={search} />
+      <ImageGallery
+        pictureQuery={pictureQuery}
+        onImageClick={handleImageClick}
+      />
+      {showModal && selectedImage && (
+        <Modal image={selectedImage} onClose={handleClose} />
+      )}
+    </Container>
+  );
+};
