@@ -18,7 +18,7 @@ export const App = () => {
   const handleImageClick = async (id, largeImageURL, tags) => {
     Loading.circle('Loading...');
     try {
-      setShowModal(false);
+      setShowModal(true);
       setSelectedImage({ id, largeImageURL, tags });
     } catch (error) {
       Report.info(`${error}`);
