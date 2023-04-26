@@ -77,7 +77,7 @@ const ImageGallery = ({ pictureQuery, onImageClick }) => {
       <>
         <PicturesDataView pictures={pictures} onImageClick={onImageClick} />
         {pictures && pictures.length >= 12 && (
-          <Button onClick={handleLoadMore}>Load more</Button>
+          <Button onClick={handleLoadMore}>Load more...</Button>
         )}
       </>
     );
