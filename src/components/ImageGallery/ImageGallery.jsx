@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import apiContent from '../../services/content-api';
 import PicturesDataView from '../PicturesDataView';
@@ -12,28 +12,20 @@ const ImageGallery = ({ pictureQuery, onImageClick }) => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
 
   useEffect(() => {
     setPictures([]);
     setPage(1);
   }, [pictureQuery]);
 
-  // useEffect(() => {
-  //   if (page > 0 && !pictures) {
-  //     console.log(page);
-  //     console.log(pictureQuery);
-  //     setPage(1);
-  //   }
-  // });
+  const prevPictureQuery = useRef(null);
 
   useEffect(() => {
-    if (!isMounted) {
+    if (
+      (page > 1 && prevPictureQuery.current !== pictureQuery) ||
+      !pictureQuery
+    ) {
+      setPage(1);
       return;
     }
 
@@ -42,18 +34,20 @@ const ImageGallery = ({ pictureQuery, onImageClick }) => {
 
     apiContent
       .fetchPicture(pictureQuery, page)
-      .then(pictures => {
-        setPictures(pervPictures => {
-          return pervPictures ? [...pervPictures, ...pictures] : pictures;
+      .then(newPictures => {
+        setPictures(prevPictures => {
+          return prevPictures ? [...prevPictures, ...newPictures] : newPictures;
         });
         setStatus('resolved');
-        // console.log(pictures);
-        // console.log(page);
       })
       .catch(error => {
         setStatus('rejected');
         setError(error);
+      })
+      .finally(() => {
+        prevPictureQuery.current = pictureQuery;
       });
+
     // eslint-disable-next-line
   }, [pictureQuery, page]);
 
